@@ -1,0 +1,10 @@
+body {
+    background-image: url('https://i.pinimg.com/originals/e3/76/51/e3765193c96e870501fd53ddcdc3da05.gif');
+    background-size: cover;
+    color: white;
+}
+.main {
+    background-color: rgba(0, 0, 0, 0.6);
+    border-radius: 10px;
+    padding: 20px;
+}

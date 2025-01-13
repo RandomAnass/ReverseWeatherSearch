@@ -1,0 +1,5 @@
+streamlit==1.40.1
+pandas==1.4.4
+meteostat==1.6.8
+folium==0.18.0
+streamlit-folium==0.22.1
