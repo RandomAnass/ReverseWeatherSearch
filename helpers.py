@@ -3,19 +3,23 @@ from meteostat import Stations, Daily
 from config import replace_nan_with_emoji
 
 def search_weather_data_with_progress(
-    temperature_range, date, exact_time, snow, wind_speed_range, continent, country_filter, progress_callback
+    avg_temp_range, min_temp_range, max_temp_range, date, exact_time, snow,
+    wind_speed_range, continent, country_filter, progress_callback
 ):
     """
     Fetch weather data and process it based on user inputs.
 
     Args:
-        temperature_range (tuple): A tuple containing the minimum and maximum temperature (°C).
+        avg_temp_range (tuple): Range for average temperature (°C).
+        min_temp_range (tuple): Range for minimum temperature (°C).
+        max_temp_range (tuple): Range for maximum temperature (°C).
         date (datetime): The date for the weather data.
         exact_time (str): The exact hour for the weather data (e.g., "15:00") or "Any".
         snow (str): Snow condition, either "Yes", "No", or "Any".
-        wind_speed_range (tuple): A tuple containing the minimum and maximum wind speed (km/h).
+        wind_speed_range (tuple): Range for wind speed (km/h).
         continent (str): Continent filter (e.g., "North America") or "All".
         country_filter (str): Specific country filter (e.g., "US").
+        progress_callback (function): Callback function for updating progress.
 
     Returns:
         tuple: A tuple containing:
@@ -25,25 +29,21 @@ def search_weather_data_with_progress(
     start_date = pd.to_datetime(date)
     end_date = start_date + pd.Timedelta(days=1)
 
-    # global
-    stations = Stations()
-    stations = stations.fetch()
+    stations = Stations().fetch()
     stations['id'] = stations.index
 
-    # TODO: add other continents approximations; or use countries/continents lists
     if continent == "North America":
         stations = stations[(stations['latitude'] >= 30) & (stations['latitude'] <= 50) &
                             (stations['longitude'] >= -130) & (stations['longitude'] <= -50)]
-    # TODO: get unique country codes (US, DE ...)
+
     if country_filter:
         stations = stations[stations['country'] == country_filter.upper()]
 
     total_stations = stations.shape[0]
     matched_data = []
     map_data = []
-    # TODO: rework this to be faster
+
     for idx, (_, station) in enumerate(stations.iterrows()):
-        #  progress bar (work on long waiting time)
         progress_callback((idx + 1) / total_stations, f"Processing station {idx + 1}/{total_stations}...")
 
         data = Daily(station['id'], start=start_date, end=end_date)
@@ -58,8 +58,9 @@ def search_weather_data_with_progress(
                 data = data[data['hour'] == hour]
 
             data = data[
-                ((data['tmin'] >= temperature_range[0]) & (data['tmax'] <= temperature_range[1]))
-                | (data['tavg'] >= temperature_range[0]) & (data['tavg'] <= temperature_range[1])
+                ((data['tmin'] >= min_temp_range[0]) & (data['tmin'] <= min_temp_range[1])) &
+                ((data['tmax'] >= max_temp_range[0]) & (data['tmax'] <= max_temp_range[1])) &
+                ((data['tavg'] >= avg_temp_range[0]) & (data['tavg'] <= avg_temp_range[1]))
             ]
 
             if snow == "Yes":
@@ -71,7 +72,7 @@ def search_weather_data_with_progress(
                 data = data[(data['wspd'] >= wind_speed_range[0]) & (data['wspd'] <= wind_speed_range[1])]
 
             for _, record in data.iterrows():
-                result = {
+                matched_data.append({
                     "City": station['name'],
                     "Country": station['country'],
                     "Station": station['id'],
@@ -85,14 +86,13 @@ def search_weather_data_with_progress(
                     "Pressure (hPa)": replace_nan_with_emoji(record['pres'], "🧪"),
                     "Date": record['time'],
                     "Hour": record['hour']
-                }
-                matched_data.append(result)
+                })
 
                 map_data.append({
                     "lat": station['latitude'],
                     "lon": station['longitude'],
                     "info": f"{station['name']} ({station['country']})<br>"
-                            f"Temp: {record['tavg']} °C, Snow: {result['Snow (cm)']}"
+                            f"Temp: {record['tavg']} °C, Snow: {record['snow']}"
                 })
 
     return pd.DataFrame(matched_data), map_data

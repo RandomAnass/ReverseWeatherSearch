@@ -17,26 +17,27 @@ st.title(APP_TITLE)
 st.write(APP_DESCRIPTION)
 st.sidebar.header("🌎 Filters")
 continent = st.sidebar.selectbox("Select Continent", ["All", "North America", "Europe", "Asia", "Australia", "Africa"], index=0)
-country_filter = st.sidebar.text_input("Filter by Country (e.g., US)") # TODO: work on this filter
+country_filter = st.sidebar.text_input("Filter by Country (e.g., US)")  # TODO: work on this filter
 show_map = st.sidebar.checkbox("Show Weather Stations on Map", value=False)
 
 st.header("Search for Weather Conditions")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    temperature_range = st.slider("🌡 Temperature Range (°C)", -20, 50, (-5, 5), step=1)
+    temperature_range = st.slider("🌡 Average Temperature Range (°C)", -20, 50, (-5, 5), step=1)
 with col2:
-    date = st.date_input("📅 Date")
+    min_temp_range = st.slider("📉 Minimum Temperature Range (°C)", -50, 20, (-12, -14), step=1)
 with col3:
-    exact_time = st.selectbox("⏰ Time (Optional)", ["Any"] + [f"{i}:00" for i in range(0, 24)], index=0)
+    max_temp_range = st.slider("📈 Maximum Temperature Range (°C)", -30, 50, (-7, -5), step=1)
 
+date = st.date_input("📅 Date")
+exact_time = st.selectbox("⏰ Time (Optional)", ["Any"] + [f"{i}:00" for i in range(0, 24)], index=0)
 snow = st.radio("❄️ Snow", ["Any", "Yes", "No"], index=0)
 wind_speed_range = st.slider("💨 Wind Speed Range (km/h)", 0, 50, (0, 20), step=1)
 
-
 if st.button("Search"):
     st.write("🔍 Searching for weather data. This may take some time.")
-    progress_bar = st.progress(0)  
+    progress_bar = st.progress(0)
     progress_status = st.empty()   # TODO: maybe change this
 
     def update_progress(progress, status):
@@ -45,10 +46,12 @@ if st.button("Search"):
 
     with st.spinner("Fetching and processing data..."):
         results, map_data = search_weather_data_with_progress(
-            temperature_range, date, exact_time, snow, wind_speed_range, continent, country_filter, update_progress
+            temperature_range, min_temp_range, max_temp_range, date, exact_time, snow,
+            wind_speed_range, continent, country_filter, update_progress
         )
         progress_bar.empty()
         progress_status.empty()
+
         if not results.empty:
             st.success("✅ Search completed! Displaying results:")
             st.dataframe(results, height=600, width=1200)
@@ -62,3 +65,4 @@ if st.button("Search"):
 
 else:
     st.info("Adjust the filters and click 'Search' to find results.")
+
