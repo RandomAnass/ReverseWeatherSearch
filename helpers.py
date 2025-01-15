@@ -35,7 +35,7 @@ def search_weather_data_with_progress(
     if continent == "North America":
         stations = stations[(stations['latitude'] >= 30) & (stations['latitude'] <= 50) &
                             (stations['longitude'] >= -130) & (stations['longitude'] <= -50)]
-
+    # TODO: get unique country codes (US, DE ...)
     if country_filter:
         stations = stations[stations['country'] == country_filter.upper()]
 
