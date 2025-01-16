@@ -7,17 +7,20 @@ def mock_progress_callback(progress, status):
 
 def test_search_weather_data_with_progress():
     # Parameters for the test
-    temperature_range = (-2, 2)
+    avg_temp_range = (-2, 2)       
+    min_temp_range = (-10, -5)     
+    max_temp_range = (0, 5)        
     date = datetime.now() - timedelta(days=1)
-    exact_time = "Any"
-    snow = "Any"
-    wind_speed_range = (0, 30)
-    continent = "North America"
-    country_filter = "CA"
+    exact_time = "Any"               
+    snow = "Any"                     
+    wind_speed_range = (0, 30)       
+    continent = "North America"      
+    country_filter = "CA"            
 
     # Run the function
     results, _ = search_weather_data_with_progress(
-        temperature_range, date, exact_time, snow, wind_speed_range, continent, country_filter, mock_progress_callback
+        avg_temp_range, min_temp_range, max_temp_range, date, exact_time,
+        snow, wind_speed_range, continent, country_filter, mock_progress_callback
     )
 
     # Assertions
