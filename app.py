@@ -24,11 +24,11 @@ st.header("Search for Weather Conditions")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    temperature_range = st.slider("🌡 Average Temperature Range (°C)", -20, 50, (-5, 5), step=1)
+    temperature_range = st.slider("🌡 Average Temperature Range (°C)", -50, 50, (-5, 5), step=1)
 with col2:
-    min_temp_range = st.slider("📉 Minimum Temperature Range (°C)", -50, 20, (-12, -14), step=1)
+    min_temp_range = st.slider("📉 Minimum Temperature Range (°C)", -60, 30, (-12, -14), step=1)
 with col3:
-    max_temp_range = st.slider("📈 Maximum Temperature Range (°C)", -30, 50, (-7, -5), step=1)
+    max_temp_range = st.slider("📈 Maximum Temperature Range (°C)", -40, 60, (-7, -5), step=1)
 
 date = st.date_input("📅 Date")
 exact_time = st.selectbox("⏰ Time (Optional)", ["Any"] + [f"{i}:00" for i in range(0, 24)], index=0)
